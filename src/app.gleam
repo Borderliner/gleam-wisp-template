@@ -3,7 +3,6 @@ import app/web.{Context}
 import dot_env
 import dot_env/env
 import gleam/erlang/process
-import gleam/io
 import mist
 import wisp
 import wisp/wisp_mist

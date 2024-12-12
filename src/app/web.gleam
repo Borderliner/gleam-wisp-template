@@ -3,8 +3,10 @@ import gleam/io
 import gleam/string_tree
 import wisp.{type Request, type Response}
 
+import app/models/item.{type Item}
+
 pub type Context {
-  Context(static_directory: String, items: List(String))
+  Context(static_directory: String, items: List(Item))
 }
 
 pub fn middleware(
