@@ -31,6 +31,11 @@ pub fn main() -> Nil {
 }
 
 fn static_directory() -> String {
-  let assert Ok(priv_directory) = wisp.priv_directory("app")
-  priv_directory <> "/static"
+  case env.get_string("STATIC_DIRECTORY") {
+    Ok(path) -> path
+    Error(_) -> {
+      let assert Ok(priv_directory) = wisp.priv_directory("chef_mani")
+      priv_directory <> "/static"
+    }
+  }
 }
