@@ -1,6 +1,7 @@
 import app/models/item.{type Item, create_item}
 import app/web.{type Context, Context}
 import gleam/dynamic
+import gleam/http
 import gleam/json
 import gleam/list
 import gleam/option.{None, Some}
@@ -10,6 +11,31 @@ import wisp.{type Request, type Response}
 
 type ItemsJson {
   ItemsJson(id: String, title: String, completed: Bool)
+}
+
+pub fn handle_item_request(
+  req: Request,
+  ctx: Context,
+  path_segments: List(String),
+) -> Response {
+  case path_segments {
+    ["create"] -> {
+      use <- wisp.require_method(req, http.Post)
+      post_create_item(req, ctx)
+    }
+
+    [id] -> {
+      use <- wisp.require_method(req, http.Delete)
+      delete_item(req, ctx, id)
+    }
+
+    [id, "completion"] -> {
+      use <- wisp.require_method(req, http.Patch)
+      patch_toggle_todo(req, ctx, id)
+    }
+
+    _ -> wisp.not_found()
+  }
 }
 
 pub fn items_middleware(

@@ -2,7 +2,6 @@ import app/pages
 import app/pages/layout.{layout}
 import app/routes/item_routes.{items_middleware}
 import app/web.{type Context}
-import gleam/http
 import lustre/element
 import wisp.{type Request, type Response}
 
@@ -19,19 +18,9 @@ pub fn handle_request(req: Request, ctx: Context) -> Response {
       |> wisp.html_response(200)
     }
 
-    ["items", "create"] -> {
-      use <- wisp.require_method(req, http.Post)
-      item_routes.post_create_item(req, ctx)
-    }
-
-    ["items", id] -> {
-      use <- wisp.require_method(req, http.Delete)
-      item_routes.delete_item(req, ctx, id)
-    }
-
-    ["items", id, "completion"] -> {
-      use <- wisp.require_method(req, http.Patch)
-      item_routes.patch_toggle_todo(req, ctx, id)
+    // Delegate "items" routes to item_routes module
+    ["items", ..path_segments] -> {
+      item_routes.handle_item_request(req, ctx, path_segments)
     }
 
     // All the empty responses
