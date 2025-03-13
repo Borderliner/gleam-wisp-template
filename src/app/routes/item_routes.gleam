@@ -1,6 +1,6 @@
 import app/models/item.{type Item, create_item}
 import app/web.{type Context, Context}
-import gleam/dynamic
+import gleam/dynamic/decode
 import gleam/http
 import gleam/json
 import gleam/list
@@ -46,16 +46,18 @@ pub fn items_middleware(
   let parsed_items = {
     case wisp.get_cookie(req, "items", wisp.PlainText) {
       Ok(json_string) -> {
-        let decoder =
-          dynamic.decode3(
-            ItemsJson,
-            dynamic.field("id", dynamic.string),
-            dynamic.field("title", dynamic.string),
-            dynamic.field("completed", dynamic.bool),
-          )
-          |> dynamic.list
+        // Define the decoder for a single ItemsJson record
+        let item_decoder = {
+          use id <- decode.field("id", decode.string)
+          use title <- decode.field("title", decode.string)
+          use completed <- decode.field("completed", decode.bool)
+          decode.success(ItemsJson(id:, title:, completed:))
+        }
 
-        let result = json.decode(json_string, decoder)
+        // Decoder for a list of ItemsJson
+        let list_decoder = decode.list(item_decoder)
+
+        let result = json.parse(json_string, list_decoder)
         case result {
           Ok(items) -> items
           Error(_) -> []
